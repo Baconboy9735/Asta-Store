@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Asta Store — AOTR</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Rajdhani:wght@300;400;500;600;700&family=Oswald:wght@200;300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #080a0d;
+  --bg2:      #0d1117;
+  --bg3:      #111820;
+  --surface:  #141c26;
+  --surface2: #1a2333;
+  --border:   rgba(180,140,60,0.18);
+  --border2:  rgba(180,140,60,0.35);
+  --gold:     #c8963c;
+  --gold2:    #f0c060;
+  --gold3:    #ffd97a;
+  --red:      #c0392b;
+  --red2:     #e74c3c;
+  --red3:     #ff6b5b;
+  --teal:     #1a9e8f;
+  --teal2:    #2dc9b6;
+  --text:     #e8dcc8;
+  --text2:    #a89878;
+  --text3:    #6a5c48;
+  --glow-g:   rgba(200,150,60,0.3);
+  --glow-r:   rgba(192,57,43,0.35);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;}
+
+/* ═══ BG LAYERS ═══ */
+.bg-fixed {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(200,150,60,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,150,60,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+.bg-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(8,10,13,0.85) 100%);
+}
+.bg-streak {
+  position: absolute;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  animation: streak var(--d) linear infinite;
+  animation-delay: var(--delay);
+}
+@keyframes streak {
+  0%   { opacity: 0; top: -10%; height: 80px; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { opacity: 0; top: 110%; height: 80px; }
+}
+.bg-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(100px); opacity: 0.12;
+  animation: orbDrift var(--dur) ease-in-out infinite alternate;
+}
+@keyframes orbDrift {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(30px,20px) scale(1.1); }
+}
+
+/* ═══ NAV ═══ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem;
+  height: 64px;
+  background: rgba(8,10,13,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+nav::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.5;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 0.7rem;
+  text-decoration: none;
+}
+.nav-logo-mark {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--gold), var(--red));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: var(--bg); font-family: 'Black Han Sans', sans-serif;
+  box-shadow: 0 0 20px var(--glow-g);
+}
+.nav-logo-text {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 1.3rem; letter-spacing: 0.1em;
+  background: linear-gradient(135deg, var(--gold2), var(--gold3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-logo-sub {
+  font-size: 0.6rem; letter-spacing: 0.35em; color: var(--text3);
+  font-family: 'Rajdhani', sans-serif; font-weight: 500;
+  -webkit-text-fill-color: var(--text3); background: none;
+  display: block; margin-top: -4px; text-transform: uppercase;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.nav-links a {
+  color: var(--text2); text-decoration: none;
+  font-size: 0.8rem; letter-spacing: 0.15em; font-weight: 600;
+  text-transform: uppercase; padding: 0.4rem 0.9rem;
+  border-radius: 4px; transition: all 0.2s;
+  position: relative;
+}
+.nav-links a:hover { color: var(--gold3); }
+.nav-links a.active { color: var(--gold2); }
+.nav-right { display: flex; align-items: center; gap: 0.8rem; }
+.nav-cart {
+  position: relative; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 0.45rem 0.9rem;
+  color: var(--gold2); font-size: 0.85rem; font-weight: 700;
+  letter-spacing: 0.05em; transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.nav-cart:hover { background: var(--surface2); box-shadow: 0 0 15px var(--glow-g); }
+.cart-badge {
+  background: var(--red); color: white;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 0.65rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-user {
+  background: linear-gradient(135deg, var(--gold), var(--red2));
+  border: none; border-radius: 8px; padding: 0.45rem 1rem;
+  color: var(--bg); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.nav-user:hover { opacity: 0.85; box-shadow: 0 0 20px var(--glow-g); }
+
+/* ═══ HERO ═══ */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 6rem 2rem 4rem;
+  overflow: hidden;
+}
+.hero-bg-text {
+  position: absolute;
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: clamp(6rem, 18vw, 18rem);
+  color: rgba(200,150,60,0.03);
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 0;
+}
+.hero-tag {
+  font-size: 0.72rem; letter-spacing: 0.5em; font-weight: 600;
+  color: var(--red2); text-transform: uppercase;
+  border: 1px solid rgba(192,57,43,0.35);
+  padding: 0.3rem 1.2rem; border-radius: 2px;
+  margin-bottom: 1.5rem; display: inline-block;
+  background: rgba(192,57,43,0.08);
+  animation: fadeUp 0.8s ease both;
+}
+.hero h1 {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  line-height: 1.0;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero h1 .line1 {
+  background: linear-gradient(160deg, #fff 0%, var(--gold3) 60%, var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero h1 .line2 {
+  background: linear-gradient(160deg, var(--gold2), var(--red3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  font-size: 0.65em;
+  letter-spacing: 0.2em;
+}
+.hero-sub {
+  font-size: 1rem; font-weight: 400; color: var(--text2);
+  max-width: 500px; line-height: 1.7; margin-bottom: 2.5rem;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+.hero-btns {
+  display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--gold), #a06020);
+  border: none; border-radius: 4px;
+  padding: 0.85rem 2.2rem;
+  color: var(--bg); font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; cursor: pointer;
+  box-shadow: 0 4px 25px var(--glow-g);
+  transition: all 0.25s; position: relative; overflow: hidden;
+}
+.btn-hero-primary::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0; transition: opacity 0.25s;
+}
+.btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 35px var(--glow-g); }
+.btn-hero-primary:hover::after { opacity: 1; }
+.btn-hero-outline {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 4px; padding: 0.85rem 2.2rem;
+  color: var(--gold2); font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.25s;
+}
+.btn-hero-outline:hover { border-color: var(--gold2); background: rgba(200,150,60,0.06); }
+
+.hero-stats {
+  display: flex; gap: 3rem; margin-top: 3.5rem;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.hero-stat { text-align: center; }
+.hero-stat-val {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 1.8rem; color: var(--gold3);
+  line-height: 1;
+}
+.hero-stat-label { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--text3); text-transform: uppercase; margin-top: 0.2rem; }
+
+/* scroll indicator */
+.scroll-hint {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  color: var(--text3); font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase;
+  animation: fadeUp 0.8s 0.6s ease both;
+}
+.scroll-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.2); }
+}
+
+/* ═══ SECTION SHARED ═══ */
+section { position: relative; z-index: 1; }
+.section-header {
+  text-align: center; padding: 4rem 2rem 2.5rem;
+}
+.section-eyebrow {
+  font-size: 0.68rem; letter-spacing: 0.45em; font-weight: 600;
+  color: var(--red2); text-transform: uppercase; margin-bottom: 0.8rem;
+}
+.section-title {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, var(--gold3), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.7rem;
+}
+.section-line {
+  width: 60px; height: 2px; margin: 0 auto;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs {
+  display: flex; justify-content: center; gap: 0.5rem;
+  padding: 0 2rem 2rem; flex-wrap: wrap;
+}
+.cat-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 3px; padding: 0.5rem 1.3rem;
+  color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.15em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.cat-btn:hover { border-color: var(--gold); color: var(--gold2); }
+.cat-btn.active {
+  background: linear-gradient(135deg, rgba(200,150,60,0.15), rgba(192,57,43,0.1));
+  border-color: var(--gold); color: var(--gold3);
+  box-shadow: 0 0 12px rgba(200,150,60,0.15);
+}
+
+/* ═══ PRODUCTS GRID ═══ */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.2rem;
+  padding: 0 3rem 5rem;
+  max-width: 1300px; margin: 0 auto;
+}
+
+.product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  cursor: pointer;
+  position: relative;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border2);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 25px rgba(200,150,60,0.1);
+}
+.product-card.featured {
+  border-color: rgba(200,150,60,0.4);
+  box-shadow: 0 0 20px rgba(200,150,60,0.08);
+}
+.product-badge {
+  position: absolute; top: 0.7rem; left: 0.7rem; z-index: 2;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 2px;
+}
+.badge-new    { background: var(--teal);  color: white; }
+.badge-hot    { background: var(--red);   color: white; }
+.badge-rare   { background: linear-gradient(135deg, #7b2ff7, #c040fb); color: white; }
+.badge-sale   { background: var(--gold);  color: var(--bg); }
+.badge-limit  { background: linear-gradient(135deg, #c8963c, #e74c3c); color: white; }
+
+.product-img {
+  width: 100%; aspect-ratio: 1/1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; position: relative; overflow: hidden;
+  background: var(--bg2);
+}
+.product-img-bg {
+  position: absolute; inset: 0;
+  opacity: 0.12; transition: opacity 0.3s;
+}
+.product-card:hover .product-img-bg { opacity: 0.2; }
+.product-emoji { position: relative; z-index: 1; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); transition: transform 0.3s; }
+.product-card:hover .product-emoji { transform: scale(1.1); }
+
+.product-info { padding: 1rem; }
+.product-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.95rem; font-weight: 500;
+  letter-spacing: 0.08em; color: var(--text); margin-bottom: 0.25rem;
+}
+.product-desc {
+  font-size: 0.75rem; color: var(--text3); line-height: 1.5; margin-bottom: 0.8rem;
+}
+.product-footer {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.product-price {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 1.1rem; color: var(--gold3);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.price-robux { font-size: 0.65rem; color: var(--text3); font-family: 'Rajdhani', sans-serif; font-weight: 600; letter-spacing: 0.1em; }
+.price-old { font-size: 0.75rem; color: var(--text3); text-decoration: line-through; font-family: 'Rajdhani', sans-serif; }
+.btn-add {
+  background: linear-gradient(135deg, var(--gold), #8a5518);
+  border: none; border-radius: 4px; padding: 0.45rem 0.9rem;
+  color: var(--bg); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-add:hover { opacity: 0.85; box-shadow: 0 4px 15px var(--glow-g); }
+
+/* ═══ BANNER ═══ */
+.banner {
+  margin: 0 3rem 4rem;
+  border-radius: 10px; overflow: hidden;
+  background: linear-gradient(135deg, #0d1a0a 0%, #1a1005 50%, #1a0808 100%);
+  border: 1px solid rgba(200,150,60,0.25);
+  padding: 3rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 2rem; position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.banner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(200,150,60,0.05) 0%, transparent 50%, rgba(192,57,43,0.05) 100%);
+}
+.banner-top-line {
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold2), var(--red2), transparent);
+}
+.banner-content { position: relative; z-index: 1; }
+.banner-tag {
+  font-size: 0.65rem; letter-spacing: 0.4em; color: var(--red2);
+  text-transform: uppercase; font-weight: 700; margin-bottom: 0.6rem;
+}
+.banner-title {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  background: linear-gradient(135deg, var(--gold3), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.6rem; letter-spacing: 0.05em;
+}
+.banner-desc { font-size: 0.9rem; color: var(--text2); max-width: 420px; line-height: 1.6; }
+.banner-right { position: relative; z-index: 1; text-align: right; flex-shrink: 0; }
+.banner-big-text {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: clamp(3rem, 6vw, 5rem);
+  background: linear-gradient(135deg, var(--gold3), var(--red3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1; margin-bottom: 0.4rem;
+}
+.banner-big-sub { font-size: 0.75rem; letter-spacing: 0.2em; color: var(--text2); text-transform: uppercase; margin-bottom: 1rem; }
+
+/* ═══ TOAST ═══ */
+#toast {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 0.9rem 1.3rem;
+  display: flex; align-items: center; gap: 0.8rem;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px var(--glow-g);
+  transform: translateX(120%); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  max-width: 300px;
+}
+#toast.show { transform: translateX(0); }
+.toast-icon { font-size: 1.2rem; }
+.toast-text { font-size: 0.85rem; color: var(--text); font-weight: 600; }
+.toast-text span { color: var(--gold3); }
+
+/* ═══ CART MODAL ═══ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.cart-panel {
+  width: 420px; max-width: 100vw;
+  height: 100vh; overflow-y: auto;
+  background: var(--bg2);
+  border-left: 1px solid var(--border2);
+  padding: 2rem;
+  transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+}
+.modal-overlay.open .cart-panel { transform: translateX(0); }
+.cart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.cart-title {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 1.2rem; letter-spacing: 0.08em;
+  background: linear-gradient(135deg, var(--gold3), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.cart-close {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; width: 32px; height: 32px;
+  color: var(--text2); cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.cart-close:hover { border-color: var(--red2); color: var(--red2); }
+.cart-items { flex: 1; display: flex; flex-direction: column; gap: 0.8rem; }
+.cart-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.8rem 1rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.cart-item-emoji { font-size: 2rem; }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+.cart-item-price { font-size: 0.8rem; color: var(--gold3); font-family: 'Black Han Sans', sans-serif; }
+.cart-item-remove {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 0.85rem; transition: color 0.2s; padding: 0.2rem;
+}
+.cart-item-remove:hover { color: var(--red2); }
+.cart-empty {
+  text-align: center; padding: 3rem 1rem;
+  color: var(--text3); font-style: italic;
+}
+.cart-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.cart-footer {
+  border-top: 1px solid var(--border); padding-top: 1.2rem; margin-top: 1.5rem;
+}
+.cart-total {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem;
+}
+.cart-total-label { font-size: 0.8rem; letter-spacing: 0.15em; color: var(--text2); text-transform: uppercase; }
+.cart-total-val { font-family: 'Black Han Sans', sans-serif; font-size: 1.3rem; color: var(--gold3); }
+.btn-checkout {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold), #8a5518);
+  border: none; border-radius: 6px; padding: 0.9rem;
+  color: var(--bg); font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; cursor: pointer;
+  transition: all 0.25s; box-shadow: 0 4px 20px var(--glow-g);
+}
+.btn-checkout:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* ═══ AUTH MODAL ═══ */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  padding: 2rem;
+}
+.auth-overlay.open { opacity: 1; pointer-events: all; }
+.auth-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 2.5rem;
+  width: 100%; max-width: 400px; position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(200,150,60,0.08);
+  transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.auth-overlay.open .auth-card { transform: scale(1); }
+.auth-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--red2), transparent);
+  border-radius: 12px 12px 0 0;
+}
+.auth-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; width: 30px; height: 30px;
+  color: var(--text2); cursor: pointer; font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.auth-close:hover { border-color: var(--red2); color: var(--red2); }
+.auth-logo {
+  text-align: center; margin-bottom: 1.5rem;
+  font-family: 'Black Han Sans', sans-serif; font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  background: linear-gradient(135deg, var(--gold3), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.auth-logo small {
+  display: block; font-size: 0.55rem; letter-spacing: 0.35em;
+  color: var(--text3); -webkit-text-fill-color: var(--text3); background: none;
+  font-family: 'Rajdhani', sans-serif; margin-top: -2px; text-transform: uppercase;
+}
+.auth-tabs {
+  display: flex; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px; margin-bottom: 1.5rem;
+}
+.auth-tab {
+  flex: 1; padding: 0.5rem;
+  background: none; border: none; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3);
+  border-radius: 4px; transition: all 0.2s;
+}
+.auth-tab.active {
+  background: linear-gradient(135deg, rgba(200,150,60,0.2), rgba(192,57,43,0.15));
+  color: var(--gold3); border: 1px solid var(--border2);
+}
+.form-grp { margin-bottom: 1rem; }
+.form-lbl {
+  display: block; font-size: 0.7rem; letter-spacing: 0.18em;
+  font-weight: 700; color: var(--text2); text-transform: uppercase; margin-bottom: 0.4rem;
+}
+.form-inp-wrap { position: relative; }
+.form-inp-icon {
+  position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%);
+  color: var(--text3); font-size: 0.85rem; pointer-events: none;
+}
+.form-inp {
+  width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+  border-radius: 6px; padding: 0.7rem 0.9rem 0.7rem 2.5rem;
+  color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem; font-weight: 500; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-inp:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,60,0.12); }
+.form-inp::placeholder { color: rgba(106,92,72,0.5); }
+.eye-btn {
+  position: absolute; right: 0.8rem; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--text3);
+  font-size: 0.85rem; transition: color 0.2s;
+}
+.eye-btn:hover { color: var(--gold); }
+.btn-auth {
+  width: 100%; padding: 0.8rem;
+  background: linear-gradient(135deg, var(--gold), #8a5518);
+  border: none; border-radius: 6px;
+  color: var(--bg); font-family: 'Oswald', sans-serif;
+  font-size: 0.82rem; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.25s;
+  box-shadow: 0 4px 20px var(--glow-g); margin-top: 0.5rem;
+}
+.btn-auth:hover { opacity: 0.85; transform: translateY(-1px); }
+.auth-msg {
+  margin-top: 0.8rem; padding: 0.6rem 0.9rem;
+  border-radius: 5px; font-size: 0.8rem;
+  display: none; align-items: center; gap: 0.4rem;
+}
+.auth-msg.error { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); color: var(--red3); display: flex; }
+.auth-msg.success { background: rgba(29,209,161,0.1); border: 1px solid rgba(29,209,161,0.3); color: #1dd1a1; display: flex; }
+
+/* spinner */
+.spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,0.3); border-top-color:var(--bg); border-radius:50%; animation:spin360 0.7s linear infinite; vertical-align:middle; margin-right:0.3rem; }
+@keyframes spin360 { to { transform:rotate(360deg); } }
+
+/* shake */
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+.shake { animation: shake 0.35s ease; }
+
+/* ═══ ORDER SYSTEM CSS ═══ */
+
+/* Checkout card */
+.checkout-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 2rem;
+  width: 100%; max-width: 500px; position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 40px rgba(200,150,60,0.08);
+  max-height: 90vh; overflow-y: auto;
+  transform: scale(0.92); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.open .checkout-card { transform: scale(1); }
+.checkout-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),var(--red2),transparent);
+  border-radius:14px 14px 0 0;
+}
+/* step indicator */
+.co-header { margin-bottom: 1.5rem; }
+.co-step-row { display:flex; align-items:center; gap:0; }
+.co-step {
+  display:flex; align-items:center; gap:0.4rem;
+  font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase;
+  font-weight:700; color:var(--text3); transition:color 0.3s;
+  white-space:nowrap;
+}
+.co-step span {
+  width:24px; height:24px; border-radius:50%;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.72rem; font-weight:700; transition:all 0.3s;
+}
+.co-step.active { color:var(--gold2); }
+.co-step.active span { background:linear-gradient(135deg,var(--gold),var(--red2)); border-color:transparent; color:var(--bg); }
+.co-step.done { color:var(--teal2); }
+.co-step.done span { background:var(--teal); border-color:transparent; color:white; }
+.co-step-line { flex:1; height:1px; background:var(--border); margin:0 0.4rem; }
+/* co items */
+.co-title {
+  font-family:'Black Han Sans',sans-serif; font-size:1.05rem; letter-spacing:0.06em;
+  background:linear-gradient(135deg,var(--gold3),var(--gold));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:1rem;
+}
+.co-items-list { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem; max-height:200px; overflow-y:auto; }
+.co-item {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:0.7rem 1rem;
+  display:flex; align-items:center; gap:0.8rem;
+}
+.co-item-emoji { font-size:1.5rem; }
+.co-item-name { flex:1; font-size:0.85rem; font-weight:600; color:var(--text); }
+.co-item-price { font-family:'Black Han Sans',sans-serif; font-size:0.9rem; color:var(--gold3); }
+.co-summary {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:0.8rem 1rem; margin-bottom:1.2rem;
+}
+.co-summary-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:0.35rem 0; font-size:0.82rem; color:var(--text2);
+  border-bottom:1px solid rgba(200,150,60,0.07);
+}
+.co-summary-row:last-child { border-bottom:none; }
+.co-summary-row.total-row { color:var(--text); font-weight:700; font-size:0.95rem; padding-top:0.5rem; }
+.co-confirm-box {
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:10px; overflow:hidden;
+}
+.co-confirm-row {
+  display:flex; align-items:flex-start; gap:1rem;
+  padding:0.75rem 1rem; border-bottom:1px solid var(--border);
+}
+.co-confirm-row:last-child { border-bottom:none; }
+.co-confirm-label { font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); width:90px; flex-shrink:0; padding-top:0.1rem; }
+.co-confirm-val { font-size:0.88rem; color:var(--text); font-weight:600; }
+.order-id-box {
+  display:inline-block; background:var(--surface); border:1px solid var(--border2);
+  border-radius:6px; padding:0.5rem 1.2rem; font-size:0.8rem; color:var(--text2);
+  letter-spacing:0.05em;
+}
+
+/* Orders panel */
+.orders-panel {
+  width:480px; max-width:100vw; height:100vh; overflow-y:auto;
+  background:var(--bg2); border-left:1px solid var(--border2);
+  padding:2rem; display:flex; flex-direction:column; gap:0;
+  transform:translateX(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-overlay.open .orders-panel { transform:translateX(0); }
+
+.order-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; margin-bottom:1rem; overflow:hidden;
+  transition:border-color 0.2s;
+}
+.order-card:hover { border-color:var(--border2); }
+.order-card-head {
+  padding:0.9rem 1rem; display:flex; align-items:center; justify-content:space-between;
+  cursor:pointer; user-select:none;
+}
+.order-id { font-family:'Black Han Sans',sans-serif; font-size:0.8rem; letter-spacing:0.08em; color:var(--gold2); }
+.order-date { font-size:0.72rem; color:var(--text3); }
+.order-status {
+  padding:0.2rem 0.7rem; border-radius:100px;
+  font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+}
+.st-pending    { background:rgba(240,192,96,0.15); color:var(--gold2); border:1px solid rgba(240,192,96,0.3); }
+.st-processing { background:rgba(29,158,143,0.15); color:var(--teal2); border:1px solid rgba(29,158,143,0.3); }
+.st-delivered  { background:rgba(52,211,153,0.15); color:#34d399; border:1px solid rgba(52,211,153,0.3); }
+.st-cancelled  { background:rgba(231,76,60,0.15);  color:var(--red3); border:1px solid rgba(231,76,60,0.3); }
+.order-card-body {
+  border-top:1px solid var(--border); padding:0.8rem 1rem;
+  display:none;
+}
+.order-card-body.open { display:block; }
+.order-items-mini { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.8rem; }
+.order-item-mini {
+  display:flex; align-items:center; gap:0.6rem;
+  font-size:0.82rem; color:var(--text2);
+}
+.order-detail-row { display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text2); padding:0.2rem 0; }
+.order-detail-row strong { color:var(--text); }
+.order-total-mini { font-family:'Black Han Sans',sans-serif; font-size:0.95rem; color:var(--gold3); }
+
+/* tracking bar */
+.track-bar {
+  display:flex; align-items:center; margin:0.8rem 0 0.5rem;
+}
+.track-step {
+  display:flex; flex-direction:column; align-items:center; gap:0.2rem;
+  flex:1; font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3);
+}
+.track-dot {
+  width:20px; height:20px; border-radius:50%;
+  background:var(--surface2); border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:0.6rem;
+  transition:all 0.3s;
+}
+.track-step.done .track-dot { background:var(--teal); border-color:var(--teal2); color:white; }
+.track-step.active .track-dot { background:linear-gradient(135deg,var(--gold),var(--red2)); border-color:transparent; color:var(--bg); animation:pulse 1.5s ease-in-out infinite; }
+.track-step.done, .track-step.active { color:var(--text2); }
+.track-line { flex:1; height:2px; background:var(--border); margin:0 -2px; position:relative; top:-10px; }
+.track-line.done { background:var(--teal); }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(200,150,60,0.4)} 50%{box-shadow:0 0 0 6px rgba(200,150,60,0)} }
+
+/* empty orders */
+.orders-empty { text-align:center; padding:3rem 1rem; color:var(--text3); }
+.orders-empty-icon { font-size:3rem; margin-bottom:0.8rem; }
+
+/* Admin panel */
+.admin-panel {
+  width:560px; max-width:100vw; height:100vh; overflow-y:auto;
+  background:var(--bg2); border-left:1px solid rgba(192,57,43,0.3);
+  padding:2rem; display:flex; flex-direction:column; gap:0;
+  transform:translateX(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-overlay.open .admin-panel { transform:translateX(0); }
+.admin-stats-row {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0.6rem; margin-bottom:1.2rem;
+}
+.admin-stat {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:0.7rem; text-align:center;
+}
+.admin-stat-val { font-family:'Black Han Sans',sans-serif; font-size:1.2rem; color:var(--gold3); }
+.admin-stat-label { font-size:0.6rem; color:var(--text3); letter-spacing:0.12em; text-transform:uppercase; margin-top:0.1rem; }
+/* admin order card */
+.admin-order-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; margin-bottom:0.8rem; overflow:hidden;
+}
+.admin-order-head {
+  padding:0.8rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:0.8rem;
+  cursor:pointer;
+}
+.admin-order-body { border-top:1px solid var(--border); padding:0.8rem 1rem; display:none; }
+.admin-order-body.open { display:block; }
+.status-select {
+  background:var(--surface2); border:1px solid var(--border2);
+  border-radius:6px; padding:0.35rem 0.6rem;
+  color:var(--text); font-family:'Rajdhani',sans-serif;
+  font-size:0.78rem; font-weight:600; cursor:pointer; outline:none;
+}
+.status-select:focus { border-color:var(--gold); }
+
+/* ═══ END ORDER SYSTEM ═══ */
+
+/* ═══ AI ORDER CHAT ═══ */
+.ai-chat-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(16px);
+  display: flex; align-items: flex-end; justify-content: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity 0.35s;
+  padding: 1.5rem;
+}
+.ai-chat-overlay.open { opacity: 1; pointer-events: all; }
+
+.ai-chat-box {
+  width: 420px; max-width: calc(100vw - 2rem);
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 50px rgba(200,150,60,0.1);
+  display: flex; flex-direction: column;
+  height: 560px; max-height: calc(100vh - 3rem);
+  transform: translateY(30px) scale(0.96);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.ai-chat-overlay.open .ai-chat-box { transform: translateY(0) scale(1); }
+.ai-chat-box::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),var(--teal2),transparent);
+  border-radius:16px 16px 0 0;
+}
+
+.ai-chat-header {
+  padding: 1rem 1.2rem;
+  background: linear-gradient(135deg, rgba(200,150,60,0.08), rgba(26,158,143,0.06));
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.8rem;
+  flex-shrink: 0;
+}
+.ai-chat-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+  box-shadow: 0 0 15px rgba(200,150,60,0.4);
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+@keyframes avatarPulse { 0%,100%{box-shadow:0 0 15px rgba(200,150,60,0.4)} 50%{box-shadow:0 0 25px rgba(200,150,60,0.7)} }
+.ai-chat-header-info { flex: 1; }
+.ai-chat-name { font-family:'Oswald',sans-serif; font-size:0.9rem; letter-spacing:0.12em; color:var(--gold2); font-weight:600; }
+.ai-chat-status { font-size:0.68rem; color:var(--teal2); display:flex; align-items:center; gap:0.3rem; margin-top:1px; }
+.ai-status-dot { width:6px; height:6px; border-radius:50%; background:var(--teal2); animation:blink 1.5s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.ai-chat-close {
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  width:30px; height:30px; color:var(--text2); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:0.85rem;
+  transition:all 0.2s; flex-shrink:0;
+}
+.ai-chat-close:hover { border-color:var(--red2); color:var(--red2); }
+
+.ai-chat-messages {
+  flex: 1; overflow-y: auto; padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.8rem;
+  scroll-behavior: smooth;
+}
+.ai-chat-messages::-webkit-scrollbar { width:4px; }
+.ai-chat-messages::-webkit-scrollbar-thumb { background:var(--gold); border-radius:2px; }
+
+.chat-msg { display: flex; gap: 0.6rem; animation: msgSlide 0.3s ease both; }
+@keyframes msgSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.chat-msg.user { flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+  margin-top: 2px;
+}
+.chat-msg.ai .msg-avatar { background: linear-gradient(135deg, var(--gold), var(--teal)); }
+.chat-msg.user .msg-avatar { background: linear-gradient(135deg, var(--red), #8a1a5a); }
+
+.msg-bubble {
+  max-width: 78%; padding: 0.65rem 0.9rem;
+  border-radius: 12px; font-size: 0.85rem; line-height: 1.6;
+}
+.chat-msg.ai .msg-bubble {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); border-top-left-radius: 4px;
+}
+.chat-msg.user .msg-bubble {
+  background: linear-gradient(135deg, rgba(200,150,60,0.2), rgba(26,158,143,0.15));
+  border: 1px solid var(--border2); color: var(--text);
+  border-top-right-radius: 4px;
+}
+
+.chat-typing {
+  display: flex; gap: 0.6rem; align-items: flex-end;
+}
+.typing-dots {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; border-top-left-radius: 4px;
+  padding: 0.7rem 1rem; display: flex; gap: 4px; align-items: center;
+}
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+.ai-chat-quick-btns {
+  padding: 0 1rem 0.5rem;
+  display: flex; gap: 0.4rem; flex-wrap: wrap; flex-shrink: 0;
+}
+.quick-btn {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 0.3rem 0.8rem;
+  color: var(--gold2); font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
+  font-family: 'Rajdhani', sans-serif;
+}
+.quick-btn:hover { background: rgba(200,150,60,0.12); border-color: var(--gold); }
+
+.ai-chat-input-row {
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 0.6rem; align-items: center; flex-shrink: 0;
+  background: var(--bg);
+}
+.ai-chat-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.6rem 0.9rem;
+  color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.88rem; font-weight: 500; outline: none;
+  transition: border-color 0.2s;
+}
+.ai-chat-input:focus { border-color: var(--gold); }
+.ai-chat-input::placeholder { color: var(--text3); }
+.ai-chat-send {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold), #8a5518);
+  border: none; color: var(--bg); font-size: 1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; box-shadow: 0 2px 10px var(--glow-g);
+}
+.ai-chat-send:hover { opacity: 0.85; transform: scale(1.05); }
+.ai-chat-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.order-confirm-card {
+  background: linear-gradient(135deg, rgba(200,150,60,0.08), rgba(26,158,143,0.06));
+  border: 1px solid var(--border2); border-radius: 10px; padding: 0.9rem;
+  margin-top: 0.3rem;
+}
+.order-confirm-card .oc-row {
+  display: flex; justify-content: space-between; font-size: 0.78rem;
+  padding: 0.2rem 0; color: var(--text2); border-bottom: 1px solid rgba(200,150,60,0.07);
+}
+.order-confirm-card .oc-row:last-child { border-bottom: none; }
+.order-confirm-card .oc-row strong { color: var(--gold3); }
+.oc-id { font-family:'Black Han Sans',sans-serif; font-size:0.9rem; color:var(--gold3); }
+/* ═══ END AI ORDER CHAT ═══ */
+
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 3rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.footer-logo {
+  font-family: 'Black Han Sans', sans-serif; font-size: 1.1rem; letter-spacing: 0.1em;
+  background: linear-gradient(135deg, var(--gold2), var(--gold3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.footer-note { font-size: 0.72rem; color: var(--text3); margin-top: 0.2rem; }
+.footer-mid { text-align: center; font-size: 0.72rem; color: var(--text3); line-height: 1.8; }
+.footer-right { font-size: 0.72rem; color: var(--text3); text-align: right; }
+
+/* ═══ UTILS ═══ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hidden { display: none !important; }
+
+@media (max-width: 900px) {
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  .products-grid { padding: 0 1.5rem 4rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .banner { flex-direction: column; margin: 0 1.5rem 3rem; padding: 2rem; }
+  .hero-stats { gap: 1.5rem; }
+  footer { flex-direction: column; text-align: center; }
+  .footer-right { text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg-fixed">
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+  <div class="bg-orb" style="width:700px;height:700px;top:-200px;left:-200px;background:#7a3a00;--dur:22s;"></div>
+  <div class="bg-orb" style="width:500px;height:500px;bottom:-150px;right:-100px;background:#6a1010;--dur:28s;"></div>
+  <div id="streaks"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#" onclick="scrollTo(0,0);return false;">
+    <div class="nav-logo-mark">A</div>
+    <div>
+      <span class="nav-logo-text">ASTA</span>
+      <span class="nav-logo-sub">AOTR Store</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#" class="active" onclick="filterCat('all');return false;">Home</a>
+    <a href="#" onclick="filterCat('all');scrollToShop();return false;">Shop</a>
+    <a href="#" onclick="filterCat('gamepasses');return false;">Gamepasses</a>
+    <a href="#" onclick="filterCat('skins');return false;">Skins</a>
+    <a href="#" onclick="filterCat('boosts');return false;">Boosts</a>
+    <a href="#" onclick="openOrders();return false;">My Orders</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-cart" onclick="openCart()">
+      🛒 Cart
+      <div class="cart-badge" id="cart-badge">0</div>
+    </div>
+    <button class="nav-user" id="nav-auth-btn" onclick="openAuth()">Sign In</button>
+    <button class="nav-user hidden" id="nav-user-display" onclick="doLogout()" style="background:var(--surface);border:1px solid var(--border);color:var(--gold2);">
+      <span id="nav-username">User</span> ↩
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="hero-bg-text">ASTA</div>
+  <div class="hero-tag">⚔ Official AOTR Marketplace</div>
+  <h1>
+    <div class="line1">ASTA STORE</div>
+    <div class="line2">Attack on Titan Revolution</div>
+  </h1>
+  <p class="hero-sub">The ultimate destination for AOTR items — gamepasses, skins, boosts, and exclusive limited gear. Gear up. Survive the walls.</p>
+  <div class="hero-btns">
+    <button class="btn-hero-primary" onclick="scrollToShop()">⚔ BROWSE STORE</button>
+    <button class="btn-hero-outline" onclick="openAuth()">🗡 JOIN NOW</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-val">2.4K+</div>
+      <div class="hero-stat-label">Active Players</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val" id="products-count">18</div>
+      <div class="hero-stat-label">Items Listed</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">24/7</div>
+      <div class="hero-stat-label">Instant Delivery</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- BANNER -->
+<div class="banner" id="shop">
+  <div class="banner-top-line"></div>
+  <div class="banner-content">
+    <div class="banner-tag">⚡ Limited Time Offer</div>
+    <div class="banner-title">TITAN SHIFTER BUNDLE</div>
+    <div class="banner-desc">Get the Titan Shifter gamepass + Armored Titan skin + 2× EXP boost — all in one exclusive bundle. Don't miss out, walls are closing fast.</div>
+    <br/>
+    <button class="btn-hero-primary" style="font-size:0.75rem;" onclick="addToCart({name:'Titan Shifter Bundle',price:1299,emoji:'🔥',cat:'bundle'})">GET BUNDLE — 1,299 R$</button>
+  </div>
+  <div class="banner-right">
+    <div class="banner-big-text">30%<br/>OFF</div>
+    <div class="banner-big-sub">Bundle Discount</div>
+  </div>
+</div>
+
+<!-- SHOP SECTION -->
+<section>
+  <div class="section-header">
+    <div class="section-eyebrow">⚔ AOTR Marketplace</div>
+    <div class="section-title">BROWSE THE STORE</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cat-tabs">
+    <button class="cat-btn active" onclick="filterCat('all')">All Items</button>
+    <button class="cat-btn" onclick="filterCat('gamepasses')">Gamepasses</button>
+    <button class="cat-btn" onclick="filterCat('skins')">Character Skins</button>
+    <button class="cat-btn" onclick="filterCat('boosts')">Boosts</button>
+    <button class="cat-btn" onclick="filterCat('gear')">Gear</button>
+    <button class="cat-btn" onclick="filterCat('bundle')">Bundles</button>
+  </div>
+
+  <div class="products-grid" id="products-grid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">ASTA STORE</div>
+    <div class="footer-note">Attack on Titan Revolution — Roblox Marketplace</div>
+  </div>
+  <div class="footer-mid">
+    Not affiliated with Roblox Corporation or the official AoT franchise.<br/>
+    All purchases are in Robux (R$). Instant in-game delivery.
+  </div>
+  <div class="footer-right">
+    © 2026 Asta Store<br/>
+    Built for the Survey Corps 🗡
+  </div>
+</footer>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkout-overlay" onclick="closeCheckoutOnBg(event)" style="align-items:center;justify-content:center;">
+  <div class="checkout-card" id="checkout-card">
+    <button class="cart-close" onclick="closeCheckout()" style="position:absolute;top:1rem;right:1rem;">✕</button>
+    <div class="co-header">
+      <div class="co-step-row">
+        <div class="co-step active" id="cstep-1"><span>1</span> Items</div>
+        <div class="co-step-line"></div>
+        <div class="co-step" id="cstep-2"><span>2</span> Details</div>
+        <div class="co-step-line"></div>
+        <div class="co-step" id="cstep-3"><span>3</span> Confirm</div>
+      </div>
+    </div>
+    <div id="co-page-1">
+      <div class="co-title">Review Your Order</div>
+      <div class="co-items-list" id="co-items-list"></div>
+      <div class="co-summary">
+        <div class="co-summary-row"><span>Subtotal</span><span id="co-subtotal">0 R$</span></div>
+        <div class="co-summary-row"><span>Delivery</span><span style="color:var(--teal2)">Instant ✓</span></div>
+        <div class="co-summary-row total-row"><span>Total</span><span id="co-total-disp">0 R$</span></div>
+      </div>
+      <button class="btn-auth" onclick="coNext(2)">CONTINUE ⚔</button>
+    </div>
+    <div id="co-page-2" style="display:none;">
+      <div class="co-title">Delivery Details</div>
+      <div class="form-grp">
+        <label class="form-lbl">Roblox Username</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="text" id="co-roblox" placeholder="Your exact Roblox username"/>
+          <span class="form-inp-icon">🎮</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text3);margin-top:0.3rem;">We'll deliver directly to this account in-game.</div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Server / Game Link <span style="color:var(--text3);font-weight:400;">(optional)</span></label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="text" id="co-server" placeholder="Paste your game server link"/>
+          <span class="form-inp-icon">🔗</span>
+        </div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Notes <span style="color:var(--text3);font-weight:400;">(optional)</span></label>
+        <textarea class="form-inp" id="co-notes" placeholder="Any special requests..." rows="2" style="resize:none;height:auto;padding-top:0.7rem;"></textarea>
+      </div>
+      <div style="display:flex;gap:0.8rem;">
+        <button class="btn-hero-outline" style="flex:1;padding:0.8rem;" onclick="coNext(1)">← BACK</button>
+        <button class="btn-auth" style="flex:2;" onclick="coNext(3)">REVIEW ORDER ⚔</button>
+      </div>
+      <div class="auth-msg" id="co-msg"></div>
+    </div>
+    <div id="co-page-3" style="display:none;">
+      <div class="co-title">Confirm & Place Order</div>
+      <div class="co-confirm-box">
+        <div class="co-confirm-row"><div class="co-confirm-label">Roblox User</div><div class="co-confirm-val" id="cf-roblox">—</div></div>
+        <div class="co-confirm-row"><div class="co-confirm-label">Items</div><div class="co-confirm-val" id="cf-items">—</div></div>
+        <div class="co-confirm-row"><div class="co-confirm-label">Total</div><div class="co-confirm-val" id="cf-total" style="color:var(--gold3);font-family:'Black Han Sans',sans-serif;">—</div></div>
+        <div class="co-confirm-row"><div class="co-confirm-label">Delivery</div><div class="co-confirm-val" style="color:var(--teal2);">Instant In-Game</div></div>
+      </div>
+      <div style="display:flex;gap:0.8rem;margin-top:1.2rem;">
+        <button class="btn-hero-outline" style="flex:1;padding:0.8rem;" onclick="coNext(2)">← BACK</button>
+        <button class="btn-auth" style="flex:2;" id="btn-place-order" onclick="placeOrder()">PLACE ORDER 🗡</button>
+      </div>
+    </div>
+    <div id="co-page-done" style="display:none;text-align:center;padding:1rem 0;">
+      <div style="font-size:3.5rem;margin-bottom:1rem;">⚔</div>
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:1.4rem;letter-spacing:0.08em;background:linear-gradient(135deg,var(--gold3),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;">ORDER PLACED!</div>
+      <div style="color:var(--text2);font-size:0.9rem;line-height:1.7;margin-bottom:1.5rem;">Your order is confirmed. Check <strong style="color:var(--gold2);">My Orders</strong> to track delivery.</div>
+      <div class="order-id-box">Order ID: <span id="done-order-id" style="color:var(--gold3);font-family:'Black Han Sans',sans-serif;"></span></div>
+      <div style="display:flex;gap:0.8rem;margin-top:1.2rem;">
+        <button class="btn-auth" style="flex:1;" onclick="closeCheckout();openOrders();">VIEW MY ORDERS</button>
+        <button class="btn-hero-outline" style="flex:1;padding:0.8rem;" onclick="closeCheckout()">KEEP SHOPPING</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY ORDERS MODAL -->
+<div class="modal-overlay" id="orders-overlay" onclick="closeOrdersOnBg(event)" style="align-items:flex-start;justify-content:flex-end;">
+  <div class="orders-panel">
+    <div class="cart-header">
+      <div class="cart-title">📦 MY ORDERS</div>
+      <button class="cart-close" onclick="closeOrders()">✕</button>
+    </div>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="modal-overlay" id="admin-overlay" onclick="closeAdminOnBg(event)" style="align-items:flex-start;justify-content:flex-end;">
+  <div class="admin-panel">
+    <div class="cart-header" style="border-bottom:1px solid rgba(192,57,43,0.3);">
+      <div class="cart-title" style="color:var(--red3);">⚙ ADMIN — ALL ORDERS</div>
+      <button class="cart-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="admin-stats-row" id="admin-stats"></div>
+    <div style="padding:0 0 0.8rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="cat-btn active" id="af-all"        onclick="adminFilter('all')">All</button>
+      <button class="cat-btn" id="af-pending"           onclick="adminFilter('pending')">⏳ Pending</button>
+      <button class="cat-btn" id="af-processing"        onclick="adminFilter('processing')">⚙ Processing</button>
+      <button class="cat-btn" id="af-delivered"         onclick="adminFilter('delivered')">✅ Delivered</button>
+      <button class="cat-btn" id="af-cancelled"         onclick="adminFilter('cancelled')">✕ Cancelled</button>
+    </div>
+    <div id="admin-orders-list"></div>
+  </div>
+</div>
+
+<!-- AI ORDER CHAT -->
+<div class="ai-chat-overlay" id="ai-chat-overlay">
+  <div class="ai-chat-box">
+    <div class="ai-chat-header">
+      <div class="ai-chat-avatar">⚔</div>
+      <div class="ai-chat-header-info">
+        <div class="ai-chat-name">ASTA ORDER ASSISTANT</div>
+        <div class="ai-chat-status"><div class="ai-status-dot"></div>Online — Ready to process your order</div>
+      </div>
+      <button class="ai-chat-close" onclick="closeAIChat()">✕</button>
+    </div>
+    <div class="ai-chat-messages" id="ai-chat-messages"></div>
+    <div class="ai-chat-quick-btns" id="ai-quick-btns"></div>
+    <div class="ai-chat-input-row">
+      <input class="ai-chat-input" id="ai-chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChatMsg()"/>
+      <button class="ai-chat-send" id="ai-chat-send-btn" onclick="sendChatMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">
+  <div class="toast-icon">✅</div>
+  <div class="toast-text" id="toast-text">Added to cart!</div>
+</div>
+
+<!-- CART MODAL -->
+<div class="modal-overlay" id="cart-overlay" onclick="closeCartOnBg(event)">
+  <div class="cart-panel">
+    <div class="cart-header">
+      <div class="cart-title">⚔ YOUR CART</div>
+      <button class="cart-close" onclick="closeCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items-list"></div>
+    <div class="cart-footer" id="cart-footer" style="display:none;">
+      <div class="cart-total">
+        <div class="cart-total-label">Total</div>
+        <div class="cart-total-val"><span id="cart-total-val">0</span> R$</div>
+      </div>
+      <button class="btn-checkout" onclick="checkout()">PROCEED TO CHECKOUT ⚔</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="auth-overlay" onclick="closeAuthOnBg(event)">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-logo">ASTA<small>AOTR Store</small></div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="atab-login" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="atab-reg" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="auth-login">
+      <div class="form-grp">
+        <label class="form-lbl">Username</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="text" id="l-user" placeholder="Your username" autocomplete="username"/>
+          <span class="form-inp-icon">◈</span>
+        </div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Password</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="password" id="l-pass" placeholder="Your password" autocomplete="current-password"/>
+          <span class="form-inp-icon">🔑</span>
+          <button class="eye-btn" type="button" onclick="toggleEye('l-pass',this)">👁</button>
+        </div>
+      </div>
+      <button class="btn-auth" onclick="doLogin()">ENTER THE STORE ⚔</button>
+      <div class="auth-msg" id="l-msg"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="auth-register" style="display:none;">
+      <div class="form-grp">
+        <label class="form-lbl">Username</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="text" id="r-user" placeholder="Choose a username" autocomplete="username"/>
+          <span class="form-inp-icon">◈</span>
+        </div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Email</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="email" id="r-email" placeholder="your@email.com" autocomplete="email"/>
+          <span class="form-inp-icon">✉</span>
+        </div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Password</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="password" id="r-pass" placeholder="Min. 6 characters" autocomplete="new-password"/>
+          <span class="form-inp-icon">🔑</span>
+          <button class="eye-btn" type="button" onclick="toggleEye('r-pass',this)">👁</button>
+        </div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">Confirm Password</label>
+        <div class="form-inp-wrap">
+          <input class="form-inp" type="password" id="r-pass2" placeholder="Repeat password" autocomplete="new-password"/>
+          <span class="form-inp-icon">🔑</span>
+          <button class="eye-btn" type="button" onclick="toggleEye('r-pass2',this)">👁</button>
+        </div>
+      </div>
+      <button class="btn-auth" onclick="doRegister()">CREATE ACCOUNT</button>
+      <div class="auth-msg" id="r-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ DATA ══════════ */
+const PRODUCTS = [
+  { id:1,  name:'Survey Corps Gamepass',  desc:'Unlock Survey Corps gear, ODM equipment & exclusive missions.', price:499,  emoji:'⚔',  cat:'gamepasses', badge:'hot',   color:'#8a1a1a', featured:true },
+  { id:2,  name:'Titan Shifter Pass',      desc:'Shift into the Attack Titan at will. Rare ability unlocked.', price:799,  emoji:'👊',  cat:'gamepasses', badge:'rare',  color:'#4a1a6a' },
+  { id:3,  name:'Military Police Badge',   desc:'Access Military Police HQ and exclusive side quests.',        price:349,  emoji:'🛡',  cat:'gamepasses', badge:'new',   color:'#1a4a6a' },
+  { id:4,  name:'Garrison Regiment Pass',  desc:'Join the Garrison Regiment & defend Wall Rose.',              price:249,  emoji:'🏯',  cat:'gamepasses', badge:null,    color:'#1a3a1a' },
+  { id:5,  name:'Levi Skin',               desc:"Rock Humanity's Strongest Soldier's iconic look.",            price:599,  emoji:'🗡',  cat:'skins',      badge:'limit', color:'#2a2a4a', featured:true },
+  { id:6,  name:'Eren Yeager Skin',        desc:'The legendary Eren Yeager — Season 4 final design.',          price:549,  emoji:'😤',  cat:'skins',      badge:'hot',   color:'#3a1a1a' },
+  { id:7,  name:'Mikasa Ackerman Skin',    desc:'Mikasa ready for battle with her iconic red scarf.',          price:499,  emoji:'🧣',  cat:'skins',      badge:null,    color:'#3a1a2a' },
+  { id:8,  name:'Armored Titan Skin',      desc:'Reiner\'s Armored Titan full body transformation skin.',      price:699,  emoji:'🦏',  cat:'skins',      badge:'rare',  color:'#4a3a1a' },
+  { id:9,  name:'2× EXP Boost (1hr)',      desc:'Double your experience gain for 1 hour of gameplay.',         price:149,  emoji:'⚡',  cat:'boosts',     badge:'sale',  color:'#1a3a4a' },
+  { id:10, name:'5× EXP Boost (1hr)',      desc:'5x experience for 1 hour — max out your titan rank fast.',   price:349,  emoji:'🔥',  cat:'boosts',     badge:'hot',   color:'#4a2a1a', featured:true },
+  { id:11, name:'Yen Drop Boost (2hr)',     desc:'2× Yen drop rate for 2 hours. Farm faster.',                 price:199,  emoji:'💴',  cat:'boosts',     badge:null,    color:'#1a4a2a' },
+  { id:12, name:'Stamina Boost (3hr)',      desc:'Unlimited stamina in ODM combat for 3 hours.',               price:249,  emoji:'💨',  cat:'boosts',     badge:'new',   color:'#1a2a4a' },
+  { id:13, name:'Thunder Spear Set',        desc:'Exclusive Thunder Spear gear skin with trail effects.',      price:449,  emoji:'⚡',  cat:'gear',       badge:'new',   color:'#4a4a1a' },
+  { id:14, name:'ODM Gold Edition',         desc:'Gold ODM equipment skin — rare visual for true veterans.',   price:799,  emoji:'🏅',  cat:'gear',       badge:'limit', color:'#4a3a00', featured:true },
+  { id:15, name:'Titan Crystal Shard',      desc:'Rare crafting material for legendary gear upgrades.',        price:299,  emoji:'💎',  cat:'gear',       badge:'rare',  color:'#1a3a4a' },
+  { id:16, name:'Survey Corps Badge',       desc:'Collectible Survey Corps wings badge for your profile.',     price:99,   emoji:'🦅',  cat:'gear',       badge:'sale',  color:'#1a1a4a' },
+  { id:17, name:'Starter Bundle',           desc:'Gamepass + 2× EXP + Garrison skin — perfect for beginners.',price:599,  emoji:'📦',  cat:'bundle',     badge:'sale',  color:'#2a3a1a', featured:true },
+  { id:18, name:'Titan Shifter Bundle',     desc:'Titan Shifter Pass + Armored Titan skin + 5× EXP boost.',   price:1299, emoji:'🔥',  cat:'bundle',     badge:'limit', color:'#4a1a00' },
+];
+
+const BADGE_LABELS = { hot:'🔥 HOT', rare:'💎 RARE', new:'✦ NEW', sale:'SALE', limit:'LIMITED' };
+let currentCat = 'all';
+let cart = [];
+let users = JSON.parse(localStorage.getItem('asta_users2') || '{}');
+let currentUser = null;
+if (!users['admin']) users['admin'] = { password:'admin123', email:'admin@asta.com' };
+
+/* ══════════ BG STREAKS ══════════ */
+const streaksCont = document.getElementById('streaks');
+for (let i = 0; i < 12; i++) {
+  const s = document.createElement('div');
+  s.className = 'bg-streak';
+  s.style.cssText = `left:${Math.random()*100}%;--d:${4+Math.random()*6}s;--delay:${Math.random()*8}s;`;
+  streaksCont.appendChild(s);
+}
+
+/* ══════════ AI ORDER CHAT ══════════ */
+let aiChatPendingOrder = null;
+let aiChatHistory = [];
+let aiChatTyping = false;
+
+function genOrderId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id = 'ASTA-';
+  for (let i = 0; i < 5; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+}
+
+function openAIChat(orderData) {
+  // Generate order ID immediately and save order right away
+  const orderId = genOrderId();
+  orderData.orderId = orderId;
+  saveOrder(orderData, orderId);
+  showToast(`Order <span>${orderId}</span> confirmed! ⚔`);
+
+  aiChatPendingOrder = orderData;
+  aiChatHistory = [];
+  document.getElementById('ai-chat-messages').innerHTML = '';
+  document.getElementById('ai-quick-btns').innerHTML = '';
+  document.getElementById('ai-chat-overlay').classList.add('open');
+
+  const itemsList = orderData.items.map(i => `${i.emoji} ${i.name} — ${i.price} R$`).join(', ');
+
+  aiChatHistory.push({
+    role: 'user',
+    content: `[SYSTEM: New order just confirmed. Order ID: ${orderId}. User: ${orderData.user}. Items: ${itemsList}. Total: ${orderData.total} R$. Greet the user, tell them their Order ID is ${orderId}, confirm the items, then ask for their Roblox username so you can deliver. Keep it short and hype. Use ⚔ once.]`
+  });
+
+  showQuickBtns([]);
+  setTimeout(() => aiReply(), 400);
+}
+
+function closeAIChat() {
+  document.getElementById('ai-chat-overlay').classList.remove('open');
+}
+
+function addChatMessage(role, text) {
+  const container = document.getElementById('ai-chat-messages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  const avatarEmoji = role === 'ai' ? '⚔' : (currentUser ? currentUser[0].toUpperCase() : '👤');
+  div.innerHTML = `
+    <div class="msg-avatar">${avatarEmoji}</div>
+    <div class="msg-bubble">${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('ai-chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ai'; div.id = 'typing-indicator';
+  div.innerHTML = `<div class="msg-avatar">⚔</div><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+function showQuickBtns(btns) {
+  const container = document.getElementById('ai-quick-btns');
+  container.innerHTML = btns.map(b => `<button class="quick-btn" onclick="quickSend('${b}')">${b}</button>`).join('');
+}
+
+function quickSend(text) {
+  document.getElementById('ai-chat-input').value = text;
+  sendChatMsg();
+}
+
+async function sendChatMsg() {
+  const input = document.getElementById('ai-chat-input');
+  const text = input.value.trim();
+  if (!text || aiChatTyping) return;
+  input.value = '';
+  showQuickBtns([]);
+
+  // Try to capture roblox username from user message if not set yet
+  if (aiChatPendingOrder && !aiChatPendingOrder.roblox) {
+    // If user typed something that looks like a username (after "is", ":", or alone)
+    const usernameMatch = text.match(/(?:is|:|\bmy\s+(?:username|name)\s+is)\s*([A-Za-z0-9_]{3,20})/i) || 
+                          (text.match(/^[A-Za-z0-9_]{3,20}$/) ? [null, text] : null);
+    if (usernameMatch) aiChatPendingOrder.roblox = usernameMatch[1];
+  }
+
+  addChatMessage('user', text);
+  aiChatHistory.push({ role: 'user', content: text });
+  aiChatTyping = true;
+  document.getElementById('ai-chat-send-btn').disabled = true;
+
+  showTyping();
+
+  try {
+    const systemPrompt = `You are ASTA Order Assistant — the official order agent for Asta Store, a Roblox game items marketplace (Attack on Titan Revolution). You speak in a cool, punchy gaming style. Use ⚔ occasionally. Keep replies SHORT (2-4 sentences max unless listing items). Your job:
+1. Confirm the customer's order details
+2. Get their Roblox username if not provided (from the initial context)
+3. Once you have their Roblox username, generate a unique order ID in format ASTA-[5 random alphanumeric uppercase chars] and confirm order is processing
+4. Offer to answer questions about delivery or items
+5. If they say thanks / done / goodbye, wrap up warmly
+Never make up prices or items — only reference what was in the initial order context. After confirming the order with the order ID, show it clearly with "Order ID: ASTA-XXXXX". Delivery is always instant in-game.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 350,
+        system: systemPrompt,
+        messages: aiChatHistory
+      })
+    });
+    const data = await resp.json();
+    removeTyping();
+    const reply = data.content?.[0]?.text || 'Something went wrong. Try again!';
+    addChatMessage('ai', reply);
+    aiChatHistory.push({ role: 'assistant', content: reply });
+
+    // Auto-save order when AI generates an order ID (case-insensitive)
+    const idMatch = reply.match(/ASTA-[A-Z0-9]{5}/i);
+    if (idMatch && aiChatPendingOrder && !aiChatPendingOrder._saved) {
+      aiChatPendingOrder._saved = true;
+      // Try to extract roblox username from full chat history if still missing
+      if (!aiChatPendingOrder.roblox) {
+        for (const msg of aiChatHistory) {
+          if (msg.role === 'user' && !msg.content.startsWith('[SYSTEM')) {
+            const m = msg.content.match(/^[A-Za-z0-9_]{3,20}$/) || 
+                      msg.content.match(/(?:is|username is|name is)[:\s]+([A-Za-z0-9_]{3,20})/i);
+            if (m) { aiChatPendingOrder.roblox = m[1] || m[0]; break; }
+          }
+        }
+      }
+      saveOrder(aiChatPendingOrder, idMatch[0].toUpperCase());
+      showToast(`✅ Order <span>${idMatch[0].toUpperCase()}</span> saved!`);
+    }
+
+    // Show relevant quick reply buttons based on conversation stage
+    const lowerReply = reply.toLowerCase();
+    if (lowerReply.includes('roblox username') || lowerReply.includes('username')) {
+      showQuickBtns(['My username is...', 'Same as store account']);
+    } else if (lowerReply.includes('asta-')) {
+      showQuickBtns(['How long is delivery?', 'All good, thanks! ⚔', 'I have a question']);
+    } else if (lowerReply.includes('anything else') || lowerReply.includes('help')) {
+      showQuickBtns(['How long is delivery?', 'All good, thanks!', 'I want to add another item']);
+    }
+
+  } catch(e) {
+    removeTyping();
+    addChatMessage('ai', 'Connection error. Please try again. ⚔');
+  }
+  aiChatTyping = false;
+  document.getElementById('ai-chat-send-btn').disabled = false;
+}
+
+async function aiReply() {
+  aiChatTyping = true;
+  document.getElementById('ai-chat-send-btn').disabled = true;
+  showTyping();
+  try {
+    const systemPrompt = `You are ASTA Order Assistant — the official order agent for Asta Store, a Roblox game items marketplace (Attack on Titan Revolution). You speak in a cool, punchy gaming style. Use ⚔ occasionally. Keep replies SHORT (2-4 sentences max unless listing items). Your job:
+1. Confirm the customer's order details
+2. Get their Roblox username if not provided
+3. Once you have their Roblox username, generate a unique order ID in format ASTA-[5 random alphanumeric uppercase chars] and confirm order is processing
+4. Offer to answer questions about delivery or items
+Never make up prices or items. Delivery is always instant in-game.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 350,
+        system: systemPrompt,
+        messages: aiChatHistory
+      })
+    });
+    const data = await resp.json();
+    removeTyping();
+    const reply = data.content?.[0]?.text || 'Hey! Ready to confirm your order. What\'s your Roblox username? ⚔';
+    addChatMessage('ai', reply);
+    aiChatHistory.push({ role: 'assistant', content: reply });
+
+    // Auto-save if order ID appears in first reply too
+    const idMatch2 = reply.match(/ASTA-[A-Z0-9]{5}/i);
+    if (idMatch2 && aiChatPendingOrder && !aiChatPendingOrder._saved) {
+      aiChatPendingOrder._saved = true;
+      saveOrder(aiChatPendingOrder, idMatch2[0].toUpperCase());
+      showToast(`✅ Order <span>${idMatch2[0].toUpperCase()}</span> saved!`);
+    }
+
+    const lowerReply = reply.toLowerCase();
+    if (lowerReply.includes('roblox username') || lowerReply.includes('username')) {
+      if (aiChatPendingOrder?.roblox) {
+        showQuickBtns([`Yes, it's ${aiChatPendingOrder.roblox}`, 'Use a different username']);
+      } else {
+        showQuickBtns(['My username is...']);
+      }
+    }
+  } catch(e) {
+    removeTyping();
+    addChatMessage('ai', 'Hey soldier! Ready to process your order. What\'s your Roblox username? ⚔');
+  }
+  aiChatTyping = false;
+  document.getElementById('ai-chat-send-btn').disabled = false;
+}
+
+/* ══════════ ORDERS STORAGE ══════════ */
+let savedOrders = JSON.parse(localStorage.getItem('asta_orders') || '[]');
+
+function saveOrder(orderData, orderId) {
+  // Always read fresh from localStorage to avoid stale data
+  savedOrders = JSON.parse(localStorage.getItem('asta_orders') || '[]');
+  const order = {
+    id: orderId,
+    user: orderData.user,
+    items: orderData.items,
+    total: orderData.total,
+    roblox: orderData.roblox || '—',
+    date: new Date().toLocaleString(),
+    status: 'pending'
+  };
+  savedOrders.unshift(order);
+  localStorage.setItem('asta_orders', JSON.stringify(savedOrders));
+}
+
+function openOrders() {
+  if (!currentUser) { openAuth(); return; }
+  renderOrdersPanel();
+  document.getElementById('orders-overlay').classList.add('open');
+}
+function closeOrders() { document.getElementById('orders-overlay').classList.remove('open'); }
+function closeOrdersOnBg(e) { if(e.target === document.getElementById('orders-overlay')) closeOrders(); }
+
+function renderOrdersPanel() {
+  // Always read fresh from localStorage
+  savedOrders = JSON.parse(localStorage.getItem('asta_orders') || '[]');
+  const list = document.getElementById('orders-list');
+  const myOrders = savedOrders.filter(o => o.user === currentUser);
+
+  if (myOrders.length === 0) {
+    list.innerHTML = `<div class="orders-empty"><div class="orders-empty-icon">📦</div><div>No orders yet.<br/>Gear up, soldier!</div></div>`;
+    return;
+  }
+
+  list.innerHTML = myOrders.map(order => `
+    <div class="order-card">
+      <div class="order-card-head" onclick="toggleOrderCard('${order.id}')">
+        <div>
+          <div class="order-id">${order.id}</div>
+          <div class="order-date">${order.date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <div class="order-status st-${order.status}">${order.status}</div>
+          <span style="color:var(--text3);font-size:0.8rem;">▾</span>
+        </div>
+      </div>
+      <div class="order-card-body" id="body-${order.id}">
+        <div class="order-items-mini">
+          ${order.items.map(i=>`<div class="order-item-mini">${i.emoji} ${i.name} — <strong style="color:var(--gold3)">${i.price} R$</strong></div>`).join('')}
+        </div>
+        <div class="order-detail-row"><span>Roblox Username</span><strong>${order.roblox}</strong></div>
+        <div class="order-detail-row"><span>Total</span><span class="order-total-mini">${order.total.toLocaleString()} R$</span></div>
+        <div style="margin-top:0.8rem;">
+          <button class="btn-add" style="width:100%;padding:0.6rem;font-size:0.78rem;" onclick="reopenChatForOrder('${order.id}')">💬 OPEN SUPPORT CHAT</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleOrderCard(id) {
+  const body = document.getElementById('body-' + id);
+  if (body) body.classList.toggle('open');
+}
+
+function reopenChatForOrder(orderId) {
+  const order = savedOrders.find(o => o.id === orderId);
+  if (!order) return;
+  closeOrders();
+  // Reopen chat with existing order context
+  aiChatHistory = [];
+  document.getElementById('ai-chat-messages').innerHTML = '';
+  document.getElementById('ai-quick-btns').innerHTML = '';
+  document.getElementById('ai-chat-overlay').classList.add('open');
+
+  aiChatHistory.push({
+    role: 'user',
+    content: `[SYSTEM: Customer is reopening support chat for existing order. Order ID: ${order.id}. User: ${order.user}. Roblox username: ${order.roblox}. Items: ${order.items.map(i=>i.name).join(', ')}. Total: ${order.total} R$. Status: ${order.status}. Date placed: ${order.date}. Greet them, confirm the order details, and ask how you can help them today.]`
+  });
+  setTimeout(() => aiReply(), 400);
+}
+
+/* ══════════ PATCH AI CHAT to save order when ID is generated ══════════ */
+
+
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  const filtered = currentCat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === currentCat);
+  document.getElementById('products-count').textContent = PRODUCTS.length;
+
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card${p.featured?' featured':''}" onclick="void(0)">
+      ${p.badge ? `<div class="product-badge badge-${p.badge}">${BADGE_LABELS[p.badge]||p.badge}</div>` : ''}
+      <div class="product-img">
+        <div class="product-img-bg" style="background:radial-gradient(circle,${p.color} 0%,transparent 70%);"></div>
+        <div class="product-emoji">${p.emoji}</div>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-footer">
+          <div class="product-price">
+            ${p.badge==='sale'?`<span class="price-old">${Math.round(p.price*1.25)}</span> `:''}
+            ${p.price} <span class="price-robux">R$</span>
+          </div>
+          <button class="btn-add" onclick="addToCart({id:${p.id},name:'${p.name.replace(/'/g,"\\'")}',price:${p.price},emoji:'${p.emoji}',cat:'${p.cat}'})">+ ADD</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach((b,i) => {
+    const cats = ['all','gamepasses','skins','boosts','gear','bundle'];
+    b.classList.toggle('active', cats[i] === cat);
+  });
+  renderProducts();
+}
+
+function scrollToShop() {
+  document.getElementById('shop').scrollIntoView({ behavior:'smooth' });
+}
+
+/* ══════════ CART ══════════ */
+function addToCart(item) {
+  cart.push({ ...item, uid: Date.now() });
+  updateCartUI();
+  showToast(`<span>${item.name}</span> added to cart!`);
+}
+
+function updateCartUI() {
+  const badge = document.getElementById('cart-badge');
+  badge.textContent = cart.length;
+  badge.style.background = cart.length > 0 ? 'var(--red2)' : 'var(--red)';
+
+  const list = document.getElementById('cart-items-list');
+  const footer = document.getElementById('cart-footer');
+
+  if (cart.length === 0) {
+    list.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Your cart is empty.<br/>Gear up, soldier.</div></div>`;
+    footer.style.display = 'none';
+  } else {
+    list.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-emoji">${item.emoji}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">${item.price} R$</div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart(${item.uid})">✕</button>
+      </div>
+    `).join('');
+    const total = cart.reduce((s,i) => s+i.price, 0);
+    document.getElementById('cart-total-val').textContent = total.toLocaleString();
+    footer.style.display = 'block';
+  }
+}
+
+function removeFromCart(uid) {
+  cart = cart.filter(i => i.uid !== uid);
+  updateCartUI();
+}
+
+function openCart()  { document.getElementById('cart-overlay').classList.add('open'); }
+function closeCart() { document.getElementById('cart-overlay').classList.remove('open'); }
+function closeCartOnBg(e) { if(e.target === document.getElementById('cart-overlay')) closeCart(); }
+
+function checkout() {
+  if (!currentUser) {
+    closeCart();
+    openAuth();
+    setTimeout(() => showAuthMsg('l-msg','error','Please sign in to checkout.'), 300);
+    return;
+  }
+  const orderData = {
+    user: currentUser,
+    items: [...cart],
+    total: cart.reduce((s,i) => s+i.price, 0),
+    roblox: '',
+    server: '',
+    notes: ''
+  };
+  closeCart();
+  openAIChat(orderData);
+  cart = [];
+  updateCartUI();
+}
+
+/* ══════════ AUTH ══════════ */
+function openAuth()  { document.getElementById('auth-overlay').classList.add('open'); }
+function closeAuth() { document.getElementById('auth-overlay').classList.remove('open'); }
+function closeAuthOnBg(e) { if(e.target === document.getElementById('auth-overlay')) closeAuth(); }
+
+function switchAuthTab(tab) {
+  document.getElementById('auth-login').style.display    = tab==='login'    ? '' : 'none';
+  document.getElementById('auth-register').style.display = tab==='register' ? '' : 'none';
+  document.getElementById('atab-login').classList.toggle('active', tab==='login');
+  document.getElementById('atab-reg').classList.toggle('active',   tab==='register');
+  clearAuthMsgs();
+}
+
+function clearAuthMsgs() {
+  ['l-msg','r-msg'].forEach(id => { const e=document.getElementById(id); e.className='auth-msg'; e.innerHTML=''; });
+}
+
+function showAuthMsg(id, type, text) {
+  const e = document.getElementById(id);
+  e.className = 'auth-msg ' + type;
+  e.innerHTML = (type==='error'?'✕ ':'✓ ') + text;
+}
+
+function doLogin() {
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  const btn  = document.querySelector('#auth-login .btn-auth');
+  if (!user || !pass) { shakeCard(); showAuthMsg('l-msg','error','Fill in all fields.'); return; }
+  btn.innerHTML = '<span class="spin"></span>Entering...'; btn.disabled = true;
+  setTimeout(() => {
+    btn.innerHTML = 'ENTER THE STORE ⚔'; btn.disabled = false;
+    if (users[user] && users[user].password === pass) {
+      currentUser = user;
+      updateNavUser();
+      closeAuth();
+      showToast(`Welcome back, <span>${user}</span>! ⚔`);
+    } else {
+      shakeCard(); showAuthMsg('l-msg','error','Invalid username or password.');
+    }
+  }, 850);
+}
+
+function doRegister() {
+  const user  = document.getElementById('r-user').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  const pass2 = document.getElementById('r-pass2').value;
+  const btn   = document.querySelector('#auth-register .btn-auth');
+  if (!user||!email||!pass||!pass2) { shakeCard(); showAuthMsg('r-msg','error','Fill in all fields.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAuthMsg('r-msg','error','Invalid email.'); return; }
+  if (pass.length < 6) { showAuthMsg('r-msg','error','Password min. 6 characters.'); return; }
+  if (pass !== pass2)  { shakeCard(); showAuthMsg('r-msg','error','Passwords do not match.'); return; }
+  if (users[user])     { showAuthMsg('r-msg','error','Username already taken.'); return; }
+  btn.innerHTML = '<span class="spin"></span>Creating...'; btn.disabled = true;
+  setTimeout(() => {
+    users[user] = { password:pass, email };
+    localStorage.setItem('asta_users2', JSON.stringify(users));
+    btn.innerHTML = 'CREATE ACCOUNT'; btn.disabled = false;
+    showAuthMsg('r-msg','success','Account created!');
+    setTimeout(() => {
+      ['r-user','r-email','r-pass','r-pass2'].forEach(id => document.getElementById(id).value='');
+      switchAuthTab('login');
+      document.getElementById('l-user').value = user;
+      document.getElementById('l-pass').focus();
+      showAuthMsg('l-msg','success','Account ready — enter your password.');
+    }, 1100);
+  }, 1000);
+}
+
+function doLogout() {
+  currentUser = null;
+  updateNavUser();
+  showToast('Signed out. See you on the battlefield! 🗡');
+}
+
+function updateNavUser() {
+  document.getElementById('nav-auth-btn').classList.toggle('hidden', !!currentUser);
+  document.getElementById('nav-user-display').classList.toggle('hidden', !currentUser);
+  if (currentUser) document.getElementById('nav-username').textContent = currentUser;
+}
+
+function toggleEye(id, btn) {
+  const inp = document.getElementById(id);
+  if (inp.type==='password') { inp.type='text'; btn.textContent='🙈'; }
+  else { inp.type='password'; btn.textContent='👁'; }
+}
+
+function shakeCard() {
+  const card = document.querySelector('.auth-card');
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+}
+
+/* ══════════ TOAST ══════════ */
+let toastTimer;
+function showToast(html) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').innerHTML = html;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ══════════ ENTER KEY ══════════ */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const authOpen = document.getElementById('auth-overlay').classList.contains('open');
+  if (!authOpen) return;
+  const loginVisible = document.getElementById('auth-login').style.display !== 'none';
+  loginVisible ? doLogin() : doRegister();
+});
+
+/* ══════════ STUB FUNCTIONS (checkout modal — not primary flow) ══════════ */
+function openCheckout() { checkout(); }
+function closeCheckout() { document.getElementById('checkout-overlay').classList.remove('open'); }
+function closeCheckoutOnBg(e) { if(e.target===document.getElementById('checkout-overlay')) closeCheckout(); }
+function coNext(step) {}
+function placeOrder() { closeCheckout(); }
+function openAdmin()  { document.getElementById('admin-overlay').classList.add('open'); }
+function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); }
+function closeAdminOnBg(e) { if(e.target===document.getElementById('admin-overlay')) closeAdmin(); }
+function adminFilter(f) {}
+
+/* ══════════ INIT ══════════ */
+renderProducts();
+updateCartUI();
+</script>
+</body>
+</html>
